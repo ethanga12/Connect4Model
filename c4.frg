@@ -1,5 +1,12 @@
 #lang forge/bsl
 
+/*
+OK SO IT SEEMS TO BE WELL FORMING BUT THE BOARD NEEDS TO 
+-- MODEL FALLING FOR CHIPS
+-- NO CHIPS CAN BE IN THE SAME PLACE
+-- RN OUR GAME_TRACE IS UNSAT I'M NOT SURE WHY (but i haven't looked too hard)...
+*/
+
 abstract sig Player {}
 
 one sig R, Y extends Player{}
