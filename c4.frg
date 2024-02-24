@@ -24,8 +24,12 @@ pred wellformed[b: Board] {
     all row, col: Int | {
         (row < 0 or row > 6 or col < 0 or col > 7) implies 
             no b.board[row][col]
+        ((b.board[row][col] = R or b.board[row][col] = Y) and row >= 1) implies {
+            b.board[subtract[row, 1]][col] = R or b.board[subtract[row, 1]][col] = Y
+        }
     }
 }
+
 
 pred allBoardsWellformed { all b: Board | wellformed[b]}
 
@@ -48,6 +52,8 @@ pred yTurn[b: Board] {
 pred balanced[b: Board] {
     yTurn[b] or rTurn[b] 
 }
+
+
 
 pred winning[b: Board, p: Player] {
     (some r, c: Int | { //inductive horizontal winning
@@ -88,10 +94,11 @@ pred move[pre: Board,
     c <= 7
 
     post.board[r][c] = turn
-
+    wellformed[post]
     all r2: Int, c2: Int | (r != r2 or c != c2) implies {
-        post.board[r2][c2] = pre.board[r][c]
-    }
+            post.board[r2][c2] = pre.board[r][c]
+        }
+   
 }
 
 pred doNothing[pre, post: Board] {
@@ -112,21 +119,24 @@ pred game_trace {
             or 
             doNothing[b, Game.next[b]]
             -- TODO: ensure X moves first (from lecture)
+             #{row, col: Int | b.board[row][col] = R} = 0 implies {
+                
+             }
         }
     }
 }
 
 
-run {
-    all b: Board | {
-         wellformed[b]
+// run {
+//     all b: Board | {
+//          wellformed[b]
    
-        some pre, post: Board | {
-            some row, col: Int, p: Player | 
-                move[pre, row, col, p, post]
-        }
-    }
-}
+//         some pre, post: Board | {
+//             some row, col: Int, p: Player | 
+//                 move[pre, row, col, p, post]
+//         }
+//     }
+// } for 2 Board
 
 
 // run { 
