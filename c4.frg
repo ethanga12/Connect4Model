@@ -1,10 +1,6 @@
 #lang forge/bsl
 
 /*
-OK SO IT SEEMS TO BE WELL FORMING BUT THE BOARD NEEDS TO 
--- MODEL FALLING FOR CHIPS
--- NO CHIPS CAN BE IN THE SAME PLACE
--- RN OUR GAME_TRACE IS UNSAT I'M NOT SURE WHY (but i haven't looked too hard)...
 */
 
 abstract sig Player {}
@@ -58,20 +54,20 @@ pred balanced[b: Board] {
 
 pred winning[b: Board, p: Player] {
     wellformed[b]
-    (some r, c: Int | { //inductive horizontal winning
-        b.board[r][c] = p
-        b.board[r][add[c, 1]] = p
-        b.board[r][add[c, 2]] = p
-        b.board[r][add[c, 3]] = p
-    })
-    or 
-    (some r, c: Int | {//inductive vertical winning
-        b.board[r][c] = p
-        b.board[add[r, 1]][c] = p
-        b.board[add[r, 2]][c] = p
-        b.board[add[r, 3]][c] = p
-    })
-    or 
+    // (some r, c: Int | { //inductive horizontal winning
+    //     b.board[r][c] = p
+    //     b.board[r][add[c, 1]] = p
+    //     b.board[r][add[c, 2]] = p
+    //     b.board[r][add[c, 3]] = p
+    // })
+    // or 
+    // (some r, c: Int | {//inductive vertical winning
+    //     b.board[r][c] = p
+    //     b.board[add[r, 1]][c] = p
+    //     b.board[add[r, 2]][c] = p
+    //     b.board[add[r, 3]][c] = p
+    // })
+    // or 
     (some r, c: Int | {//inductive diagonal winning
         b.board[r][c] = p
         b.board[add[r, 1]][add[c, 1]] = p
@@ -116,15 +112,18 @@ pred game_trace {
     init[Game.first]
     no sprev: Board | Game.next[sprev] = Game.first //no Loop
     all b: Board | some Game.next[b] implies {
+            balanced[b]
             some r, c: Int, p: Player | 
                 move[b, r, c, p, Game.next[b]]
-            // or 
-            // doNothing[b, Game.next[b]]
+            or 
+            doNothing[b, Game.next[b]]
             -- TODO: ensure X moves first (from lecture)
             //  #{row, col: Int | b.board[row][col] = R} = 0 implies {
             //     rTurn[b]
             // }
-        }
+        // winning[b, R] implies not winning[b, Y]
+        // winning[b, Y] implies not winning[b, R]
+    }
 }
 
 
@@ -150,6 +149,7 @@ pred game_trace {
 
 run { 
     game_trace
+    some b : Board | winning[b, R]
     // all b: Board | { 
     //     some r,c: Int | {
     //         r >=0 r <= 6
@@ -157,4 +157,4 @@ run {
     //         no b.board[r][c]
     //     }
     // }
-} for 10 Board for {next is linear}
+} for 15 Board for {next is linear}

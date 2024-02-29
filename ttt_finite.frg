@@ -175,13 +175,13 @@ test expect {
 -- to copy-paste it into the script editor. CHANGES WILL NOT BE REFLECTED IN THE FILE!
 option run_sterling "ttt_viz.js"
 
-run {
-    wellformed 
-    some pre, post: Board | {
-        some row, col: Int, p: Player | 
-            move[pre, row, col, p, post]
-    }
-}
+// run {
+//     wellformed 
+//     some pre, post: Board | {
+//         some row, col: Int, p: Player | 
+//             move[pre, row, col, p, post]
+//     }
+// }
 
 one sig Game {
     first: one Board, 
@@ -197,17 +197,17 @@ pred game_trace {
         -- TODO: ensure X moves first
     }}
 }
-run { 
-    game_trace
-    all b: Board | { 
-        some r,c: Int | {
-            r >=0 r <= 2 
-            c >=0 c <= 2
-            no b.board[r][c]
-        }
-    }
-} for 10 Board for {next is linear}
-// ^ the annotation is faster than the constraint
+// run { 
+//     game_trace
+//     all b: Board | { 
+//         some r,c: Int | {
+//             r >=0 r <= 2 
+//             c >=0 c <= 2
+//             no b.board[r][c]
+//         }
+//     }
+// } for 10 Board for {next is linear}
+// // ^ the annotation is faster than the constraint
 
 
 -------------------------------
@@ -257,19 +257,19 @@ example xMiddleOturn is {someOTurn} for {
 }
 
 -- Assertion (without variables):
-// pred someXTurn {some b:Board | xturn[b]}
-// pred emptySingleBoard {
-//   one b: Board | true
-//   all b: Board, r,c: Int | no b.board[r][c]
-// }
-// --  emptySingleBoard => someXTurn 
-// assert emptySingleBoard is sufficient for someXTurn 
-// -- same thing
-// assert someXturn is necessary for emptySingleBoard
+pred someXTurn {some b:Board | xturn[b]}
+pred emptySingleBoard {
+  one b: Board | true
+  all b: Board, r,c: Int | no b.board[r][c]
+}
+--  emptySingleBoard => someXTurn 
+assert emptySingleBoard is sufficient for someXTurn 
+-- same thing
+assert someXturn is necessary for emptySingleBoard
 
-// -- Assertion (with variables):
-// pred emptyBoard[b: Board] { all r, c: Int | no b.board[r][c] }
-// assert all b: Board | emptyBoard[b] is sufficient for xturn[b]
+-- Assertion (with variables):
+pred emptyBoard[b: Board] { all r, c: Int | no b.board[r][c] }
+assert all b: Board | emptyBoard[b] is sufficient for xturn[b]
 
 -- a is sufficient for b    implies
 -- a is necessary for b     <===
@@ -304,3 +304,4 @@ assert all pre, post: Board, row, col: Int, p: Player |
 -- Forge to generate whole game traces; rather, we are reasoning abstractly about whether 
 -- a single transition preserves balance. 
 
+*/
