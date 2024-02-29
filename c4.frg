@@ -14,7 +14,8 @@ sig Board {
 
 one sig Game {
     first: one Board,
-    next: pfunc Board -> Board
+    next: pfunc Board -> Board,
+    last: one Board
 }
 
 pred wellformed[b: Board] {
@@ -28,7 +29,16 @@ pred wellformed[b: Board] {
     #{row, col: Int | b.board[row][col] = R} >= #{row, col: Int | b.board[row][col] = Y} and #{row, col: Int | b.board[row][col] = R} < add[#{row, col: Int | b.board[row][col] = Y}, 2] //R moves first
 }
 
+pred notWellformed {
+    some b: Board | {
+        b.board[2][0] = R
+        no b.board[1][0]
+    }
+    some b: Board | {
+        b.board[0][-9] = R
+    }
 
+}
 pred allBoardsWellformed { all b: Board | wellformed[b]}
 
 pred init[b: Board] {
@@ -51,30 +61,42 @@ pred balanced[b: Board] {
     yTurn[b] or rTurn[b] 
 }
 
-
-
-pred winning[b: Board, p: Player] {
-    wellformed[b]
-    // (some r, c: Int | { //inductive horizontal winning
-    //     b.board[r][c] = p
-    //     b.board[r][add[c, 1]] = p
-    //     b.board[r][add[c, 2]] = p
-    //     b.board[r][add[c, 3]] = p
-    // })
-    // or 
-    // (some r, c: Int | {//inductive vertical winning
-    //     b.board[r][c] = p
-    //     b.board[add[r, 1]][c] = p
-    //     b.board[add[r, 2]][c] = p
-    //     b.board[add[r, 3]][c] = p
-    // })
-    // or 
+pred winningCheck[b: Board, p: Player] {
+    (some r, c: Int | { //inductive horizontal winning
+        b.board[r][c] = p
+        b.board[r][add[c, 1]] = p
+        b.board[r][add[c, 2]] = p
+        b.board[r][add[c, 3]] = p
+    })
+    or 
+    (some r, c: Int | {//inductive vertical winning
+        b.board[r][c] = p
+        b.board[add[r, 1]][c] = p
+        b.board[add[r, 2]][c] = p
+        b.board[add[r, 3]][c] = p
+    })
+    or 
     (some r, c: Int | {//inductive diagonal winning
         b.board[r][c] = p
         b.board[add[r, 1]][add[c, 1]] = p
         b.board[add[r, 2]][add[c, 2]] = p
         b.board[add[r, 3]][add[c, 3]] = p
     })
+}
+
+pred winning[b: Board, p: Player] {
+    wellformed[b]
+    winningCheck[b, p]
+    p = R implies {
+        not winningCheck[b, Y]
+    }
+    p = Y implies {
+        not winningCheck[b, R]
+    }
+
+    
+    
+    
 }
 
 pred move[pre: Board,
@@ -149,8 +171,14 @@ pred game_trace {
 
 
 run { 
-    game_trace
-    some b : Board | winning[b, R]
+    // game_trace
+    some b : Board | {
+        #{row, col: Int | b.board[row][col] = R} = 27
+        wellformed[b]
+        balanced[b]
+        not winning[b, R] and not winning[b, Y]
+        
+    }
     // all b: Board | { 
     //     some r,c: Int | {
     //         r >=0 r <= 6
@@ -158,4 +186,4 @@ run {
     //         no b.board[r][c]
     //     }
     // }
-} for 15 Board for {next is linear}
+} for 1 Board, 7 Int
