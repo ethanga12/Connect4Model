@@ -1,4 +1,5 @@
 #lang forge/bsl
+option run_sterling "c4vis.js"
 
 /*
 OK SO IT SEEMS TO BE WELL FORMING BUT THE BOARD NEEDS TO 
